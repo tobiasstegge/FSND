@@ -72,9 +72,12 @@ This README is missing documentation of your endpoints. Below is an example for 
 
 Endpoints
 GET '/categories'
-GET ...
-POST ...
-DELETE ...
+GET '/questions'
+DELETE '/questions/<int:question_id>'
+POST '/questions'
+POST '/questions/search'
+GET '/categories/<int:category_id>/questions'
+POST '/quizzes'
 
 GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
@@ -87,7 +90,33 @@ GET '/categories'
 '5' : "Entertainment",
 '6' : "Sports"}
 
-```
+GET '/questions'
+- Fetches all questions paginated in a dictonary with key values pairs
+- Request Arguments: None
+- Returns: An object with a id, question, answer ... 
+
+DELETE '/questions/<int:question_id>'
+- Deletes a question indicated by a question id
+- Request Arguments: 'question_id'
+- Returns: None
+
+POST '/questions'
+- Add a new question as a dictionary. Arguments are stored in body of the request
+- Request Arguments: question, answer, category, difficulty
+- Returns: total_questions
+
+POST '/questions/search'
+- Returns paginated selection of questions matching a search term
+- Request Arguments: searchTerm
+- Returns: questions, number of total questions
+
+GET '/categories/<int:category_id>/questions'
+- Fetches questions in selected category
+- Request Arguments: category
+- Returns: object of questions, number of questions
+
+POST '/quizzes'
+- Fetches single quiz question based on selected quiz category and checks previous questions
 
 
 ## Testing
