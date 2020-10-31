@@ -41,10 +41,13 @@ def create_app(test_config=None):
   @app.route('/questions', methods=['GET'])
   def get_all_questions():
     page = request.args.get('page', 1, type=int)
-    start = (page - 1) * 10
-    end = start + 10
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
     questions = Question.query.all()
     categories = Category.query.all()
+
+    if page > (len(questions) / QUESTIONS_PER_PAGE):
+      abort(404)
 
     if questions is None:
       abort(404)
@@ -65,6 +68,10 @@ def create_app(test_config=None):
   def delete_question(question_id):
     
     question = Question.query.filter(Question.id == question_id).one_or_none()
+
+    if question is None:
+      abort(404)
+
     Question.delete(question)
 
     return jsonify({
@@ -81,6 +88,9 @@ def create_app(test_config=None):
     new_answer = body.get('answer')
     new_category = body.get('category')
     new_difficulty = body.get('difficulty')
+
+    if new_question == None:
+      abort(400)
 
     try:
       question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
@@ -153,9 +163,6 @@ def create_app(test_config=None):
       previous_questions = header.get('previous_questions')
       quiz_category = header.get('quiz_category')
 
-      print(quiz_category)
-      print("Test Test")
-
       if quiz_category['id'] == 0:
         questions = Question.query.all()
 
@@ -180,6 +187,14 @@ def create_app(test_config=None):
     except:
       abort(422)
 
+
+  @app.errorhandler(400)
+  def invalid_data(error):
+    return jsonify({
+      'success': False, 
+      'error': 400,
+      'message': "Invalid Data"
+    }), 400
 
   @app.errorhandler(404)
   def not_found(error):
