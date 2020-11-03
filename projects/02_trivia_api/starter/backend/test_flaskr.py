@@ -24,8 +24,14 @@ class TriviaTestCase(unittest.TestCase):
         "difficulty": 4, 
         "id": 11, 
         "question": "Which country won the first ever soccer World Cup in 1930?" }
+        
+        self.new_bad_question = {
+        "category": 6, 
+        "difficulty": 4, 
+        "id": 11, }
 
-        self.quiz_parameters = {"previous_questions":[2], "quiz_category": {"id": 2}}
+        self.quiz_good_parameters = {"previous_questions":[2], "quiz_category": {"id": 2}}
+        self.quiz_bad_parameters = {"previous_questions":[2], "quiz_category": {"id": 1000}}
 
         # binds the app to the current context
         with self.app.app_context():
@@ -53,12 +59,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertEqual(question, None)
 
-    def test_create_question(self):
+    def test_good_create_question(self):
         res = self.client().post('/questions', json = self.new_question)
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['total_questions'] > 1)
+
+    def test_bad_create_question(self):
+        res = self.client().post('/questions', json = self.new_bad_question)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
 
     def test_search_questions(self):
         res = self.client().post('/questions/search', json = {'searchTerm': 'title'})
@@ -80,12 +92,19 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)    
 
-    def test_quizzes(self):
-        res = self.client().post('/quizzes', json = self.quiz_parameters)
+    def test_good_quizzes(self):
+        res = self.client().post('/quizzes', json = self.quiz_good_parameters)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
+
+    def test_bad_quizzes(self):
+        res = self.client().post('/quizzes', json = self.quiz_bad_parameters)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
 
     def test_404_error(self):
         res = self.client().get('/questions?page=1000')

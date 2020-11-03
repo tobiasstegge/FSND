@@ -167,6 +167,9 @@ def create_app(test_config=None):
       previous_questions = header.get('previous_questions')
       quiz_category = header.get('quiz_category')
 
+      if quiz_category['id'] > 6:
+        abort(422)
+
       if quiz_category['id'] == 0:
         questions = Question.query.all()
 
