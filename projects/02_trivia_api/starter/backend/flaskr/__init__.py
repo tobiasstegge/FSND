@@ -75,7 +75,8 @@ def create_app(test_config=None):
     Question.delete(question)
 
     return jsonify({
-      'success': True
+      'success': True,
+      'question_id': question_id
     })
 
 
@@ -137,6 +138,9 @@ def create_app(test_config=None):
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_question_category(category_id):
 
+    if category_id > 6:
+      abort(404)
+
     try:
       searched_questions = Question.query.filter(Question.category == category_id).all()
     
@@ -169,7 +173,7 @@ def create_app(test_config=None):
       else:
         questions = Question.query.filter(quiz_category['id'] == Question.category).all()
 
-      print(questions)
+      print(len(questions))
 
       selected_questions = []
 
@@ -177,12 +181,20 @@ def create_app(test_config=None):
         if question.id not in previous_questions:
           selected_questions.append(question)
 
-      question = random.choice(selected_questions)
+      print(len(selected_questions))
 
-      return jsonify({
-        'success': True,
-        'question': question.format(),
-      })
+      if len(selected_questions) < 1:
+        return jsonify({
+          'success': True,
+          'question': None
+        })
+
+      else:
+        question = random.choice(selected_questions)
+        return jsonify({
+          'success': True,
+          'question': question.format(),
+        })
 
     except:
       abort(422)
